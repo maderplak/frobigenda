@@ -255,7 +255,7 @@ input, select, textarea {
 <div id="toast" class="toast"></div>
 
 <script>
-// CONFIGURACIÓN - TU NUEVA URL
+// CONFIGURACIÓN
 const API_URL = 'https://script.google.com/macros/s/AKfycbx2AS35U_ALe12wzeqwkP0Df5PeYGFurqeU6JalHdQDcejARM1QJ4NnOiGSg2zsFs4Q/exec';
 
 let GESTIONES = [];
@@ -272,7 +272,7 @@ async function loadData() {
     GESTIONES = data;
     renderList();
   } catch(e) {
-    showToast('Error al cargar datos de Google Sheets', 'error');
+    showToast('Error de conexión', 'error');
   }
 }
 
@@ -368,24 +368,20 @@ form.onsubmit = async (e) => {
 
   showToast('Guardando...');
   const res = await apiCall(action, data);
-  
   if(res) {
-    showToast('Guardado correctamente');
+    showToast('Guardado');
     closeModal();
-    // Esperamos un segundo y recargamos para ver los cambios
-    setTimeout(loadData, 1500);
+    setTimeout(loadData, 1000);
   }
 };
 
 async function confirmDelete() {
-  if(!confirm('¿Seguro quieres eliminar esta gestión?')) return;
+  if(!confirm('¿Eliminar esta gestión?')) return;
   const id = document.getElementById('f_id').value;
-  showToast('Eliminando...');
   const res = await apiCall('delete', { id });
   if(res) {
-    showToast('Eliminado');
     closeModal();
-    setTimeout(loadData, 1500);
+    loadData();
   }
 }
 
@@ -412,35 +408,30 @@ async function addBitacora() {
   const gestion = GESTIONES.find(g => g.id === id);
   let list = [];
   try { list = JSON.parse(gestion.bitacora || '[]'); } catch(e) {}
-  
   list.push({ fecha: new Date().toISOString(), texto: input.value });
   
-  showToast('Actualizando bitácora...');
   const res = await apiCall('update', { id, bitacora: JSON.stringify(list) });
   if(res) {
     input.value = '';
-    showToast('Bitácora actualizada');
-    setTimeout(loadData, 1500);
+    loadData();
     closeModal();
   }
 }
 
-// API CALL CON MODO NO-CORS PARA GOOGLE
+// API - AQUÍ ESTÁ EL ARREGLO PARA EL ERROR DE CORS
 async function apiCall(action, data) {
   try {
     const res = await fetch(API_URL, {
       method: 'POST',
-      mode: 'no-cors', // CRÍTICO: Evita error de CORS
+      mode: 'no-cors', // Agregamos esto para evitar el bloqueo del navegador
       headers: {
-        'Content-Type': 'text/plain;charset=utf-8'
+        'Content-Type': 'text/plain'
       },
       body: JSON.stringify({ action, ...data })
     });
-    
-    // Con no-cors la respuesta es opaca, asumimos éxito si no hay excepción
-    return { success: true }; 
+    // Con no-cors asumimos que se envió bien si no salta al catch
+    return { success: true };
   } catch(e) {
-    console.error("Error API:", e);
     showToast('Error de conexión', 'error');
     return null;
   }
@@ -459,9 +450,7 @@ function staleDays(g) {
 }
 function fmtDate(d) {
   if(!d) return '';
-  try { 
-    return new Date(d).toLocaleDateString('es-AR', {day:'2-digit',month:'2-digit',year:'numeric'}); 
-  } catch { return d; }
+  try { return new Date(d).toLocaleDateString('es-AR', {day:'2-digit',month:'2-digit',year:'numeric'}); } catch { return d; }
 }
 
 function showToast(msg, type = '') {
@@ -471,7 +460,6 @@ function showToast(msg, type = '') {
   t.style.display = 'block';
   setTimeout(() => { t.style.display = 'none'; }, 3000);
 }
-
 </script>
 </body>
 </html>
