@@ -968,15 +968,22 @@ function renderDetailBody(g) {
 
   // Estado rápido
   const secEstado = document.createElement('div');
-  secEstado.innerHTML = `
-    <div class="detail-section-title">Cambiar estado</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      ${['Pendiente','En curso','Esperando','Resuelta'].map(s => `
-        <button class="btn btn-ghost btn-sm ${g.estado===s?'active-estado':''}" 
-          style="${g.estado===s?`background:var(--surface2);border-color:var(--accent);color:var(--accent)`:''}
-          onclick="updateEstado('${g.id}','${s}')">${s}</button>`).join('')}
-    </div>`;
-  body.appendChild(secEstado);
+  const estadoDiv = document.createElement('div');
+  estadoDiv.innerHTML = '<div class="detail-section-title">Cambiar estado</div>';
+  const estadoBtns = document.createElement('div');
+  estadoBtns.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;margin-top:6px';
+  ['Pendiente','En curso','Esperando','Resuelta'].forEach(s => {
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-ghost btn-sm';
+    btn.textContent = s;
+    if(g.estado === s) {
+      btn.style.cssText = 'background:var(--surface2);border-color:var(--accent);color:var(--accent);font-weight:600';
+    }
+    btn.addEventListener('click', () => updateEstado(g.id, s));
+    estadoBtns.appendChild(btn);
+  });
+  estadoDiv.appendChild(estadoBtns);
+  body.appendChild(estadoDiv);
 
   // Descripción
   if(g.descripcion) {
@@ -1029,10 +1036,23 @@ function renderDetailBody(g) {
 
   const addUpd = document.createElement('div');
   addUpd.className = 'add-update';
-  addUpd.innerHTML = `
-    <textarea id="new-update" placeholder="Registrá el último avance... ej: Llamé al proveedor, esperamos respuesta el viernes."
-      onkeydown="if(event.key==='Enter'&&event.ctrlKey)addUpdate('${g.id}')"></textarea>
-    <button class="btn btn-primary btn-sm" onclick="addUpdate('${g.id}')">💾 Guardar update (Ctrl+Enter)</button>`;
+  const updateHint = document.createElement('div');
+  updateHint.style.cssText = 'font-size:11px;color:var(--text3);margin-bottom:4px';
+  updateHint.textContent = 'Escribí el avance y presioná Enter para guardar';
+  const textarea = document.createElement('textarea');
+  textarea.id = 'new-update';
+  textarea.placeholder = 'Ej: Llamé al proveedor, esperamos respuesta el viernes...';
+  textarea.style.cssText = 'width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:13px;font-family:DM Sans,sans-serif;outline:none;resize:vertical;min-height:70px;line-height:1.5';
+  textarea.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      addUpdate(g.id);
+    }
+  });
+  textarea.addEventListener('focus', () => { textarea.style.borderColor = 'var(--accent)'; });
+  textarea.addEventListener('blur', () => { textarea.style.borderColor = 'var(--border)'; });
+  addUpd.appendChild(updateHint);
+  addUpd.appendChild(textarea);
   secBit.appendChild(addUpd);
   body.appendChild(secBit);
 }
