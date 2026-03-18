@@ -453,6 +453,153 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text)
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
 
+
+/* ========== MOBILE VIEW ========== */
+.mobile-app { display: none; }
+
+@media (max-width: 768px) {
+  /* Hide desktop */
+  .sidebar, .main, .detail-panel, .modal-overlay { display: none !important; }
+  .mobile-app { display: flex; flex-direction: column; min-height: 100vh; width: 100%; background: var(--bg); }
+
+  .mob-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px 12px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .mob-header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .mob-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: var(--text); }
+  .mob-logo span { color: var(--accent); }
+  .mob-date { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+  .mob-sync { background: var(--surface2); border: 1px solid var(--border); border-radius: 20px;
+    padding: 5px 12px; font-size: 12px; color: var(--text2); cursor: pointer; font-family: 'DM Sans', sans-serif; }
+
+  .mob-tabs {
+    display: flex; background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 57px; z-index: 9;
+  }
+  .mob-tab {
+    flex: 1; padding: 11px 8px; text-align: center;
+    font-size: 12px; font-weight: 600; color: var(--text3);
+    cursor: pointer; border-bottom: 2px solid transparent;
+    transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+  }
+  .mob-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .mob-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+
+  .mob-section-title {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--text3); font-weight: 600; margin-bottom: 4px; padding: 0 2px;
+  }
+
+  .mob-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+    border-left: 3px solid transparent;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .mob-card:active { opacity: 0.8; }
+  .mob-card-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; line-height: 1.3; }
+  .mob-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .mob-card-last { font-size: 12px; color: var(--text2); margin-top: 8px; font-style: italic;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .mob-empty { text-align: center; padding: 40px 20px; color: var(--text3); font-size: 13px; line-height: 1.8; }
+  .mob-empty .mob-empty-icon { font-size: 32px; margin-bottom: 8px; opacity: 0.4; }
+
+  /* FAB */
+  .mob-fab {
+    position: fixed; bottom: 24px; right: 24px;
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--accent); color: white;
+    font-size: 26px; border: none; cursor: pointer;
+    box-shadow: 0 4px 20px rgba(45,122,79,0.4);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 20; transition: transform 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .mob-fab:active { transform: scale(0.92); }
+
+  /* Mobile modal */
+  .mob-modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 50; display: flex; align-items: flex-end;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    backdrop-filter: blur(3px);
+  }
+  .mob-modal-overlay.open { opacity: 1; pointer-events: all; }
+  .mob-modal {
+    background: var(--surface); border-radius: 20px 20px 0 0;
+    width: 100%; padding: 20px 20px 36px;
+    transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    max-height: 90vh; overflow-y: auto;
+  }
+  .mob-modal-overlay.open .mob-modal { transform: translateY(0); }
+  .mob-modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 16px; }
+  .mob-modal-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; margin-bottom: 16px; }
+
+  /* Mobile detail sheet */
+  .mob-detail-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 40; display: flex; align-items: flex-end;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .mob-detail-overlay.open { opacity: 1; pointer-events: all; }
+  .mob-detail-sheet {
+    background: var(--surface); border-radius: 20px 20px 0 0;
+    width: 100%; padding: 0 0 36px;
+    transform: translateY(100%); transition: transform 0.3s ease;
+    max-height: 88vh; overflow-y: auto;
+  }
+  .mob-detail-overlay.open .mob-detail-sheet { transform: translateY(0); }
+  .mob-detail-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto 0; }
+  .mob-detail-header { padding: 14px 18px 12px; border-bottom: 1px solid var(--border); }
+  .mob-detail-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 8px; line-height: 1.3; }
+  .mob-detail-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; }
+  .mob-estado-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  .mob-estado-btn {
+    padding: 7px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    border: 1px solid var(--border); background: var(--surface2); color: var(--text2);
+    cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+  }
+  .mob-estado-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .mob-update-area { display: flex; flex-direction: column; gap: 8px; }
+  .mob-update-area textarea {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 10px 12px; color: var(--text);
+    font-size: 14px; font-family: 'DM Sans', sans-serif; outline: none;
+    resize: none; height: 80px; line-height: 1.5;
+  }
+  .mob-update-area textarea:focus { border-color: var(--accent); }
+  .mob-btn-full {
+    width: 100%; padding: 13px; border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 600; cursor: pointer; border: none;
+    font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+  }
+  .mob-btn-primary { background: var(--accent); color: white; }
+  .mob-btn-primary:active { opacity: 0.85; }
+  .mob-btn-ghost { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+  .mob-bitacora { display: flex; flex-direction: column; gap: 8px; }
+  .mob-bit-entry { background: var(--surface2); border-radius: var(--radius-sm); padding: 10px 12px; border-left: 2px solid var(--accent); }
+  .mob-bit-fecha { font-size: 11px; color: var(--text3); margin-bottom: 3px; }
+  .mob-bit-texto { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+  .mob-form-group { margin-bottom: 12px; }
+  .mob-form-label { font-size: 12px; color: var(--text2); margin-bottom: 5px; display: block; font-weight: 500; }
+  .mob-form-input, .mob-form-select {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 11px 12px;
+    color: var(--text); font-size: 14px; font-family: 'DM Sans', sans-serif; outline: none;
+  }
+  .mob-form-input:focus, .mob-form-select:focus { border-color: var(--accent); }
+  .mob-form-select { cursor: pointer; }
+  .mob-delegar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+  .mob-delegar-row input[type=checkbox] { width: 17px; height: 17px; accent-color: var(--accent); }
+  .mob-delegar-row label { font-size: 13px; color: var(--text2); cursor: pointer; }
+}
+
 /* RESPONSIVE */
 @media (max-width: 900px) {
   .detail-panel { display: none; }
@@ -652,6 +799,78 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text)
       <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
       <button class="btn btn-primary" onclick="saveGestion()" id="btn-save">Guardar</button>
     </div>
+  </div>
+</div>
+
+
+<!-- ========== MOBILE APP ========== -->
+<div class="mobile-app" id="mobile-app">
+  <div class="mob-header">
+    <div class="mob-header-top">
+      <div class="mob-logo">Frobi<span>Genda</span></div>
+      <button class="mob-sync" onclick="mobLoadData()">↻ Sync</button>
+    </div>
+    <div class="mob-date" id="mob-date"></div>
+  </div>
+
+  <div class="mob-tabs">
+    <div class="mob-tab active" onclick="mobSetTab('hoy')" id="mob-tab-hoy">📅 Mi día</div>
+    <div class="mob-tab" onclick="mobSetTab('bloqueadas')" id="mob-tab-bloqueadas">⏸ Bloqueadas</div>
+    <div class="mob-tab" onclick="mobSetTab('todas')" id="mob-tab-todas">≡ Todas</div>
+  </div>
+
+  <div class="mob-body" id="mob-body">
+    <div style="text-align:center;padding:40px;color:var(--text3)">
+      <div class="spinner" style="margin:0 auto 12px"></div>
+      Cargando...
+    </div>
+  </div>
+
+  <button class="mob-fab" onclick="mobOpenNueva()">+</button>
+</div>
+
+<!-- Mobile nueva gestión -->
+<div class="mob-modal-overlay" id="mob-modal-overlay" onclick="mobCloseModalOutside(event)">
+  <div class="mob-modal">
+    <div class="mob-modal-handle"></div>
+    <div class="mob-modal-title">Nueva gestión</div>
+
+    <div class="mob-form-group">
+      <label class="mob-form-label">Área *</label>
+      <select class="mob-form-select" id="mf-area" onchange="mobOnAreaChange()">
+        <option>Compras</option><option>Comex</option><option>Mantenimiento</option><option>Calidad</option>
+      </select>
+    </div>
+    <div class="mob-form-group">
+      <label class="mob-form-label">Título *</label>
+      <input type="text" class="mob-form-input" id="mf-titulo" placeholder="¿Qué hay que gestionar?">
+    </div>
+    <div class="mob-form-group">
+      <label class="mob-form-label">Prioridad</label>
+      <select class="mob-form-select" id="mf-prioridad">
+        <option>Alta</option><option selected>Media</option><option>Baja</option>
+      </select>
+    </div>
+    <div class="mob-form-group">
+      <div class="mob-delegar-row">
+        <input type="checkbox" id="mf-delegar" onchange="mobOnDelegarChange()">
+        <label for="mf-delegar">Delegar</label>
+      </div>
+      <input type="text" class="mob-form-input" id="mf-responsable" value="Yo" readonly>
+    </div>
+    <div style="height:12px"></div>
+    <button class="mob-btn-full mob-btn-primary" onclick="mobSaveGestion()" id="mob-btn-save">Guardar gestión</button>
+    <div style="height:8px"></div>
+    <button class="mob-btn-full mob-btn-ghost" onclick="mobCloseModal()">Cancelar</button>
+  </div>
+</div>
+
+<!-- Mobile detail sheet -->
+<div class="mob-detail-overlay" id="mob-detail-overlay" onclick="mobCloseDetailOutside(event)">
+  <div class="mob-detail-sheet">
+    <div class="mob-detail-handle"></div>
+    <div class="mob-detail-header" id="mob-detail-header"></div>
+    <div class="mob-detail-body" id="mob-detail-body"></div>
   </div>
 </div>
 
@@ -1298,8 +1517,246 @@ function showToast(msg, type='success') {
   setTimeout(() => t.classList.remove('show'), 2800);
 }
 
+
+// ========== MOBILE JS ==========
+let mobCurrentTab = 'hoy';
+let mobSelectedId = null;
+
+document.getElementById('mob-date').textContent = new Date().toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long'});
+
+function isMobile() { return window.innerWidth <= 768; }
+
+async function mobLoadData() {
+  document.getElementById('mob-body').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3)"><div class="spinner" style="margin:0 auto 12px"></div>Cargando...</div>';
+  try {
+    const res = await fetch(API_URL + '?action=getAll');
+    const data = await res.json();
+    gestiones = Array.isArray(data) ? data : [];
+    gestiones.forEach(g => {
+      try { g._bitacora = JSON.parse(g.bitacora || '[]'); } catch { g._bitacora = []; }
+      try { g._subtareas = JSON.parse(g.subtareas || '[]'); } catch { g._subtareas = []; }
+    });
+    mobRenderTab();
+    showToast('Sincronizado ✓', 'success');
+  } catch(e) {
+    document.getElementById('mob-body').innerHTML = '<div class="mob-empty"><div class="mob-empty-icon">⚠️</div>Error de conexión.<br>Verificá tu internet.</div>';
+  }
+}
+
+function mobSetTab(tab) {
+  mobCurrentTab = tab;
+  document.querySelectorAll('.mob-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('mob-tab-' + tab).classList.add('active');
+  mobRenderTab();
+}
+
+function mobRenderTab() {
+  const body = document.getElementById('mob-body');
+  const active = gestiones.filter(g => String(g.archivada) !== 'true' && g.estado !== 'Resuelta');
+
+  if(mobCurrentTab === 'hoy') {
+    const miDiaGest = active.filter(g => miDia.includes(g.id));
+    if(!miDiaGest.length) {
+      body.innerHTML = '<div class="mob-empty"><div class="mob-empty-icon">📅</div>No hay gestiones para hoy.<br>Agregá desde la PC o usá "Todas".</div>';
+      return;
+    }
+    body.innerHTML = '<div class="mob-section-title">Gestiones de hoy</div>' +
+      miDiaGest.map(g => mobCardHTML(g)).join('');
+  } else if(mobCurrentTab === 'bloqueadas') {
+    const bloq = active.filter(g => g.estado === 'Esperando');
+    if(!bloq.length) {
+      body.innerHTML = '<div class="mob-empty"><div class="mob-empty-icon">✅</div>Sin gestiones bloqueadas.<br>¡Todo fluye!</div>';
+      return;
+    }
+    body.innerHTML = '<div class="mob-section-title">Esperando respuesta</div>' +
+      bloq.map(g => mobCardHTML(g)).join('');
+  } else {
+    if(!active.length) {
+      body.innerHTML = '<div class="mob-empty"><div class="mob-empty-icon">📋</div>No hay gestiones activas.</div>';
+      return;
+    }
+    body.innerHTML = '<div class="mob-section-title">Todas las gestiones activas</div>' +
+      active.map(g => mobCardHTML(g)).join('');
+  }
+
+  body.querySelectorAll('.mob-card').forEach(el => {
+    el.addEventListener('click', () => mobOpenDetail(el.dataset.id));
+  });
+}
+
+function mobCardHTML(g) {
+  const lastUpdate = g._bitacora.length ? g._bitacora[g._bitacora.length-1].texto : null;
+  const color = AREA_COLORS[g.area] || 'var(--accent)';
+  return `<div class="mob-card" data-id="${g.id}" style="border-left-color:${color}">
+    <div class="mob-card-title">${g.titulo}</div>
+    <div class="mob-card-meta">
+      <span class="badge badge-estado-${estadoKey(g.estado)}">${g.estado}</span>
+      <span class="badge badge-prioridad-${(g.prioridad||'').toLowerCase()}">${g.prioridad}</span>
+      ${g.responsable ? `<span style="font-size:11px;color:var(--text3)">👤 ${g.responsable}</span>` : ''}
+    </div>
+    ${lastUpdate ? `<div class="mob-card-last">"${lastUpdate}"</div>` : ''}
+  </div>`;
+}
+
+function mobOpenDetail(id) {
+  mobSelectedId = id;
+  const g = gestiones.find(x=>x.id===id);
+  if(!g) return;
+
+  const color = AREA_COLORS[g.area] || 'var(--accent)';
+  document.getElementById('mob-detail-header').innerHTML = `
+    <div class="mob-detail-title">${g.titulo}</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
+      <span class="badge badge-estado-${estadoKey(g.estado)}">${g.estado}</span>
+      <span class="badge badge-prioridad-${(g.prioridad||'').toLowerCase()}">${g.prioridad}</span>
+      <span class="badge" style="background:var(--surface2);color:var(--text3)">
+        <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${color};margin-right:4px"></span>${g.area}
+      </span>
+    </div>
+    ${g.responsable ? `<div style="font-size:12px;color:var(--text2)">👤 ${g.responsable}</div>` : ''}`;
+
+  const body = document.getElementById('mob-detail-body');
+  body.innerHTML = '';
+
+  // Estado
+  const secEstado = document.createElement('div');
+  secEstado.innerHTML = '<div class="mob-section-title" style="margin-bottom:8px">Cambiar estado</div>';
+  const btns = document.createElement('div');
+  btns.className = 'mob-estado-btns';
+  ['Pendiente','En curso','Esperando','Resuelta'].forEach(s => {
+    const b = document.createElement('button');
+    b.className = 'mob-estado-btn' + (g.estado===s?' active':'');
+    b.textContent = s;
+    b.addEventListener('click', () => {
+      g.estado = s;
+      g.ultima_actualizacion = new Date().toISOString();
+      apiCall('update', { id, estado: s, ultima_actualizacion: g.ultima_actualizacion });
+      btns.querySelectorAll('.mob-estado-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      mobRenderTab();
+      showToast('Estado actualizado ✓', 'success');
+    });
+    btns.appendChild(b);
+  });
+  secEstado.appendChild(btns);
+  body.appendChild(secEstado);
+
+  // Update rápido
+  const secUpdate = document.createElement('div');
+  secUpdate.innerHTML = '<div class="mob-section-title" style="margin-bottom:8px">Registrar avance</div>';
+  const updArea = document.createElement('div');
+  updArea.className = 'mob-update-area';
+  const ta = document.createElement('textarea');
+  ta.placeholder = 'Ej: Hablé con el proveedor, me responden el lunes...';
+  const btnUpd = document.createElement('button');
+  btnUpd.className = 'mob-btn-full mob-btn-primary';
+  btnUpd.textContent = 'Guardar avance';
+  btnUpd.addEventListener('click', () => {
+    const txt = ta.value.trim();
+    if(!txt) return;
+    const entry = { fecha: new Date().toISOString(), texto: txt };
+    g._bitacora.push(entry);
+    g.ultima_actualizacion = new Date().toISOString();
+    apiCall('update', { id, bitacora: JSON.stringify(g._bitacora), ultima_actualizacion: g.ultima_actualizacion });
+    ta.value = '';
+    showToast('Avance guardado ✓', 'success');
+    mobRenderTab();
+    // refresh bitacora display
+    const bitList = document.getElementById('mob-bit-list');
+    if(bitList) renderMobBitacora(g, bitList);
+  });
+  updArea.appendChild(ta);
+  updArea.appendChild(btnUpd);
+  secUpdate.appendChild(updArea);
+  body.appendChild(secUpdate);
+
+  // Bitácora
+  const secBit = document.createElement('div');
+  secBit.innerHTML = '<div class="mob-section-title" style="margin-bottom:8px">Historial</div>';
+  const bitList = document.createElement('div');
+  bitList.className = 'mob-bitacora';
+  bitList.id = 'mob-bit-list';
+  renderMobBitacora(g, bitList);
+  secBit.appendChild(bitList);
+  body.appendChild(secBit);
+
+  document.getElementById('mob-detail-overlay').classList.add('open');
+}
+
+function renderMobBitacora(g, container) {
+  container.innerHTML = '';
+  if(!g._bitacora.length) {
+    container.innerHTML = '<div style="font-size:12px;color:var(--text3);text-align:center;padding:8px">Sin historial aún</div>';
+    return;
+  }
+  [...g._bitacora].reverse().forEach(entry => {
+    const div = document.createElement('div');
+    div.className = 'mob-bit-entry';
+    div.innerHTML = `<div class="mob-bit-fecha">${fmtDateTime(entry.fecha)}</div><div class="mob-bit-texto">${entry.texto}</div>`;
+    container.appendChild(div);
+  });
+}
+
+function mobCloseDetail() { document.getElementById('mob-detail-overlay').classList.remove('open'); }
+function mobCloseDetailOutside(e) { if(e.target.id==='mob-detail-overlay') mobCloseDetail(); }
+
+function mobOpenNueva() {
+  document.getElementById('mf-titulo').value = '';
+  document.getElementById('mf-area').value = 'Compras';
+  document.getElementById('mf-prioridad').value = 'Media';
+  document.getElementById('mf-delegar').checked = false;
+  document.getElementById('mf-responsable').value = 'Yo';
+  document.getElementById('mob-modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('mf-titulo').focus(), 300);
+}
+function mobCloseModal() { document.getElementById('mob-modal-overlay').classList.remove('open'); }
+function mobCloseModalOutside(e) { if(e.target.id==='mob-modal-overlay') mobCloseModal(); }
+
+function mobOnAreaChange() {
+  if(document.getElementById('mf-delegar').checked) {
+    const area = document.getElementById('mf-area').value;
+    document.getElementById('mf-responsable').value = AREA_RESPONSABLES[area] || 'Yo';
+  }
+}
+function mobOnDelegarChange() {
+  const delegar = document.getElementById('mf-delegar').checked;
+  const area = document.getElementById('mf-area').value;
+  document.getElementById('mf-responsable').value = delegar ? (AREA_RESPONSABLES[area] || '') : 'Yo';
+}
+
+async function mobSaveGestion() {
+  const titulo = document.getElementById('mf-titulo').value.trim();
+  if(!titulo) { showToast('El título es obligatorio', 'error'); return; }
+  const btn = document.getElementById('mob-btn-save');
+  btn.textContent = 'Guardando...'; btn.disabled = true;
+  const payload = {
+    titulo,
+    area: document.getElementById('mf-area').value,
+    prioridad: document.getElementById('mf-prioridad').value,
+    responsable: document.getElementById('mf-responsable').value,
+    estado: 'Pendiente', descripcion: '', fecha_limite: ''
+  };
+  const res = await apiCall('create', payload);
+  if(res && res.id) {
+    payload.id = res.id; payload._bitacora = []; payload._subtareas = [];
+    gestiones.push(payload);
+    mobCloseModal();
+    mobRenderTab();
+    showToast('Gestión creada ✓', 'success');
+  }
+  btn.textContent = 'Guardar gestión'; btn.disabled = false;
+}
+
+// Override loadData init to also trigger mobile
+const _origLoadData = loadData;
+
 // INIT
-loadData();
+if(isMobile()) {
+  mobLoadData();
+} else {
+  loadData();
+}
+
 </script>
 </body>
 </html>
