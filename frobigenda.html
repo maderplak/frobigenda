@@ -276,9 +276,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);heig
     <div class="mob-fg"><label class="mob-fl">Área *</label><select class="mob-fs" id="mf-area" onchange="mobAreaChg()"><option>Compras</option><option>Comex</option><option>Mantenimiento</option><option>Calidad</option></select></div>
     <div class="mob-fg"><label class="mob-fl">Título *</label><input type="text" class="mob-fi" id="mf-tit" placeholder="¿Qué hay que gestionar?"></div>
     <div class="mob-fg"><label class="mob-fl">Prioridad</label><select class="mob-fs" id="mf-pri"><option>Alta</option><option selected>Media</option><option>Baja</option></select></div>
+    <div class="mob-fg"><label class="mob-fl">Fecha límite <span style="color:var(--txt3)">(opcional)</span></label><input type="date" class="mob-fi" id="mf-fch"></div>
     <div class="mob-fg">
-      <div class="mob-dlg"><input type="checkbox" id="mf-dlg" onchange="mobDlgChg()"><label for="mf-dlg">Delegar</label></div>
-      <input type="text" class="mob-fi" id="mf-resp" value="Yo" readonly>
+      <div class="mob-dlg" style="margin-bottom:7px"><input type="checkbox" id="mf-dlg" onchange="mobDlgChg()"><label for="mf-dlg" style="font-size:14px;font-weight:500">Delegar tarea</label></div>
+      <input type="text" class="mob-fi" id="mf-resp" value="Yo" readonly style="color:var(--txt2)">
     </div>
     <div style="height:10px"></div>
     <button class="mob-btn-full mob-btn-p" onclick="mobSave()" id="mob-btn-sv">Guardar gestión</button>
@@ -625,10 +626,13 @@ function mobDet(id){
   document.getElementById('mob-det-ov').classList.add('on');
 }
 function renderMobBit(g,c){c.innerHTML='';if(!g._b.length){c.innerHTML='<div style="font-size:12px;color:var(--txt3);text-align:center;padding:8px">Sin historial aún</div>';return;}[...g._b].reverse().forEach(e=>{const d=document.createElement('div');d.className='mob-bit-e';d.innerHTML=`<div class="mob-bit-fe">${fmtDT(e.fecha)}</div><div class="mob-bit-tx">${e.texto}</div>`;c.appendChild(d);});}
-function mobOpenNew(){document.getElementById('mf-tit').value='';document.getElementById('mf-area').value='Compras';document.getElementById('mf-pri').value='Media';document.getElementById('mf-dlg').checked=false;document.getElementById('mf-resp').value='Yo';document.getElementById('mob-new-ov').classList.add('on');setTimeout(()=>document.getElementById('mf-tit').focus(),300);}
+function mobOpenNew(){document.getElementById('mf-tit').value='';document.getElementById('mf-area').value='Compras';document.getElementById('mf-pri').value='Media';document.getElementById('mf-dlg').checked=false;document.getElementById('mf-resp').value='Yo';document.getElementById('mf-fch').value='';document.getElementById('mob-new-ov').classList.add('on');setTimeout(()=>document.getElementById('mf-tit').focus(),300);}
 function mobAreaChg(){if(document.getElementById('mf-dlg').checked)document.getElementById('mf-resp').value=AR[document.getElementById('mf-area').value]||'Yo';}
 function mobDlgChg(){document.getElementById('mf-resp').value=document.getElementById('mf-dlg').checked?(AR[document.getElementById('mf-area').value]||''):'Yo';}
-async function mobSave(){const t=document.getElementById('mf-tit').value.trim();if(!t){toast('El título es obligatorio','er');return;}const btn=document.getElementById('mob-btn-sv');btn.textContent='Guardando...';btn.disabled=true;const p={titulo:t,area:document.getElementById('mf-area').value,prioridad:document.getElementById('mf-pri').value,responsable:document.getElementById('mf-resp').value,estado:'Pendiente',descripcion:'',fecha_limite:''};const r=await api('create',p);if(r&&r.id){p.id=r.id;p._b=[];p._s=[];GS.push(p);document.getElementById('mob-new-ov').classList.remove('on');mobRender();toast('Gestión creada ✓','ok');if(p.responsable!=='Yo')wa(p.area,p.titulo,p.prioridad);}btn.textContent='Guardar gestión';btn.disabled=false;}
+let MOB_SAVING=false;
+async function mobSave(){
+  if(MOB_SAVING)return;
+  MOB_SAVING=true;const t=document.getElementById('mf-tit').value.trim();if(!t){toast('El título es obligatorio','er');return;}const btn=document.getElementById('mob-btn-sv');btn.textContent='Guardando...';btn.disabled=true;const p={titulo:t,area:document.getElementById('mf-area').value,prioridad:document.getElementById('mf-pri').value,responsable:document.getElementById('mf-resp').value,estado:'Pendiente',descripcion:'',fecha_limite:document.getElementById('mf-fch').value};const r=await api('create',p);if(r&&r.id){p.id=r.id;p._b=[];p._s=[];GS.push(p);document.getElementById('mob-new-ov').classList.remove('on');mobRender();toast('Gestión creada ✓','ok');if(p.responsable!=='Yo')wa(p.area,p.titulo,p.prioridad);}btn.textContent='Guardar gestión';btn.disabled=false;MOB_SAVING=false;}
 
 // INIT
 if(window.innerWidth<=768){mobLoad();}else{loadData();}
