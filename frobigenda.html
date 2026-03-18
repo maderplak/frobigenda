@@ -659,7 +659,7 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text)
 <div class="toast" id="toast"></div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbww_-MsUpeXYGSX-UXfNJTo5KNs0TMzS_3kRiKXBVnr3luu_ZLyzs6M-Q8eRhosxS-Q/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbw6Ufk-4l_osBQT8KS1W99ONzKYO60FyCghb2qJY5FFGjNegNM5OURcGNPJ6Q_IqU_x/exec';
 const AREA_COLORS = { Compras:'var(--compras)', Comex:'var(--comex)', Mantenimiento:'var(--mantenimiento)', Calidad:'var(--calidad)' };
 const AREA_RESPONSABLES = { Compras:'Eliana', Comex:'Eliana', Mantenimiento:'Javier', Calidad:'Giuliano' };
 
@@ -1228,11 +1228,10 @@ function filterGestiones() {
 // API
 async function apiCall(action, data) {
   try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      body: JSON.stringify({ action, ...data })
-    });
-    return await res.json();
+    const payload = encodeURIComponent(JSON.stringify({ action, ...data }));
+    const res = await fetch(API_URL + '?payload=' + payload, { redirect: 'follow' });
+    const text = await res.text();
+    try { return JSON.parse(text); } catch { return { success: true }; }
   } catch(e) {
     showToast('Error de conexión', 'error');
     return null;
