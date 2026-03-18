@@ -881,6 +881,15 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text)
 const API_URL = 'https://script.google.com/macros/s/AKfycbw6Ufk-4l_osBQT8KS1W99ONzKYO60FyCghb2qJY5FFGjNegNM5OURcGNPJ6Q_IqU_x/exec';
 const AREA_COLORS = { Compras:'var(--compras)', Comex:'var(--comex)', Mantenimiento:'var(--mantenimiento)', Calidad:'var(--calidad)' };
 const AREA_RESPONSABLES = { Compras:'Eliana', Comex:'Eliana', Mantenimiento:'Javier', Calidad:'Giuliano' };
+const AREA_WHATSAPP = { Compras:'5493814768386', Comex:'5493814768386', Mantenimiento:'5493815406950', Calidad:'5493813497356' };
+
+function enviarWhatsApp(area, titulo, prioridad) {
+  const numero = AREA_WHATSAPP[area];
+  const nombre = AREA_RESPONSABLES[area];
+  if(!numero) return;
+  const msg = `Hola ${nombre} 👋, te paso una gestión para que la tengas en cuenta:%0A%0A📋 *${titulo}*%0AÁrea: ${area} | Prioridad: ${prioridad}%0A%0ACualquier consulta me avisás. ¡Gracias!`;
+  window.open(`https://wa.me/${numero}?text=${msg}`, '_blank');
+}
 
 function onDelegarChange() {
   const delegar = document.getElementById('f-delegar').checked;
@@ -1452,6 +1461,9 @@ async function saveGestion() {
       updateCounts();
       renderView();
       openGestion(res.id);
+      // si está delegado, abrir WhatsApp
+      const delegado = payload.responsable && payload.responsable !== 'Yo';
+      if(delegado) enviarWhatsApp(payload.area, payload.titulo, payload.prioridad);
     }
     showToast('Gestión creada ✓', 'success');
     btn.textContent = 'Guardar'; btn.disabled = false;
@@ -1743,6 +1755,9 @@ async function mobSaveGestion() {
     mobCloseModal();
     mobRenderTab();
     showToast('Gestión creada ✓', 'success');
+    // si está delegado, abrir WhatsApp
+    const delegado = payload.responsable && payload.responsable !== 'Yo';
+    if(delegado) enviarWhatsApp(payload.area, payload.titulo, payload.prioridad);
   }
   btn.textContent = 'Guardar gestión'; btn.disabled = false;
 }
