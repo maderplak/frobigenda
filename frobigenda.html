@@ -1057,61 +1057,61 @@ function renderDetailBody(g) {
   body.appendChild(secBit);
 }
 
-// ACCIONES
-async function updateEstado(id, estado) {
+// ACCIONES — Optimistic UI: actualiza pantalla al instante, guarda en background
+function updateEstado(id, estado) {
   const g = gestiones.find(x=>x.id===id);
   if(!g) return;
   g.estado = estado;
-  await apiCall('update', { id, estado, ultima_actualizacion: new Date().toISOString() });
-  openGestion(id);
+  g.ultima_actualizacion = new Date().toISOString();
+  openGestion(id);   // actualiza UI inmediatamente
   renderView();
   showToast('Estado actualizado ✓', 'success');
+  apiCall('update', { id, estado, ultima_actualizacion: g.ultima_actualizacion }); // guarda en background
 }
 
-async function addUpdate(id) {
+function addUpdate(id) {
   const txt = document.getElementById('new-update').value.trim();
   if(!txt) return;
   const g = gestiones.find(x=>x.id===id);
   if(!g) return;
   const entry = { fecha: new Date().toISOString(), texto: txt };
   g._bitacora.push(entry);
-  const bitStr = JSON.stringify(g._bitacora);
-  await apiCall('update', { id, bitacora: bitStr, ultima_actualizacion: new Date().toISOString() });
   g.ultima_actualizacion = new Date().toISOString();
-  openGestion(id);
+  openGestion(id);   // actualiza UI inmediatamente
   renderView();
-  showToast('Update registrado ✓', 'success');
+  showToast('Update guardado ✓', 'success');
+  apiCall('update', { id, bitacora: JSON.stringify(g._bitacora), ultima_actualizacion: g.ultima_actualizacion }); // background
 }
 
-async function addSubtask(id) {
+function addSubtask(id) {
   const inp = document.getElementById('new-subtask');
   const txt = inp.value.trim();
   if(!txt) return;
   const g = gestiones.find(x=>x.id===id);
   g._subtareas.push({ texto: txt, done: false });
-  await saveSubtareas(id, g._subtareas);
   inp.value = '';
-  openGestion(id);
+  openGestion(id);   // actualiza UI inmediatamente
   showToast('Subtarea agregada ✓', 'success');
+  saveSubtareas(id, g._subtareas); // background
 }
 
-async function toggleSubtask(id, idx) {
+function toggleSubtask(id, idx) {
   const g = gestiones.find(x=>x.id===id);
   g._subtareas[idx].done = !g._subtareas[idx].done;
-  await saveSubtareas(id, g._subtareas);
-  openGestion(id);
+  openGestion(id);   // actualiza UI inmediatamente
+  saveSubtareas(id, g._subtareas); // background
 }
 
-async function deleteSubtask(id, idx) {
+function deleteSubtask(id, idx) {
   const g = gestiones.find(x=>x.id===id);
   g._subtareas.splice(idx, 1);
-  await saveSubtareas(id, g._subtareas);
-  openGestion(id);
+  openGestion(id);   // actualiza UI inmediatamente
   showToast('Subtarea eliminada', 'success');
+  saveSubtareas(id, g._subtareas); // background
 }
 
-async function saveSubtareas(id, subtareas) {
-  await apiCall('update', { id, subtareas: JSON.stringify(subtareas), ultima_actualizacion: new Date().toISOString() });
+function saveSubtareas(id, subtareas) {
+  apiCall('update', { id, subtareas: JSON.stringify(subtareas), ultima_actualizacion: new Date().toISOString() });
 }
 
 async function archivarGestion() {
@@ -1213,21 +1213,30 @@ async function saveGestion() {
   };
   if(editingId) {
     payload.id = editingId;
-    await apiCall('update', payload);
     Object.assign(gestiones.find(g=>g.id===editingId), payload);
-    showToast('Gestión actualizada ✓', 'success');
     closeModal();
     renderView();
     if(selectedId === editingId) openGestion(editingId);
+    showToast('Gestión actualizada ✓', 'success');
+    apiCall('update', payload); // background
+    btn.textContent = 'Actualizar'; btn.disabled = false;
   } else {
+    // para crear necesitamos el ID que devuelve el servidor
+    btn.textContent = 'Guardando...'; btn.disabled = true;
     const res = await apiCall('create', payload);
     closeModal();
-    await loadData();
+    if(res && res.id) {
+      payload.id = res.id;
+      payload._bitacora = [];
+      payload._subtareas = [];
+      gestiones.push(payload);
+      updateCounts();
+      renderView();
+      openGestion(res.id);
+    }
     showToast('Gestión creada ✓', 'success');
-    if(res && res.id) openGestion(res.id);
+    btn.textContent = 'Guardar'; btn.disabled = false;
   }
-  btn.textContent = editingId ? 'Actualizar' : 'Guardar';
-  btn.disabled = false;
 }
 
 // FILTERS
