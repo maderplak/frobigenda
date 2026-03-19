@@ -300,12 +300,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);heig
 <div class="toast" id="toast"></div>
 
 <script>
-const API='https://script.google.com/macros/s/AKfycbw6Ufk-4l_osBQT8KS1W99ONzKYO60FyCghb2qJY5FFGjNegNM5OURcGNPJ6Q_IqU_x/exec';
+const API='https://script.google.com/macros/s/AKfycbxRaDD9VmvhC29m6uq8XrCPL7Br5p4BUEwdHxxbj4Mkk4D-nlVLIT9_XIxIAPgulxlS/exec';
 const AC={Compras:'#4a6fa5',Comex:'#27ae60',Mantenimiento:'#c0851a',Calidad:'#c0392b'};
 const AR={Compras:'Eliana',Comex:'Eliana',Mantenimiento:'Javier',Calidad:'Giuliano'};
 const AW={Compras:'5493814768386',Comex:'5493814768386',Mantenimiento:'5493815406950',Calidad:'5493813497356'};
 
-let GS=[],CV='dashboard',CF={e:'todos',p:''},SID=null,EID=null,MIDI=JSON.parse(localStorage.getItem('midi')||'[]'),SQ='';
+let GS=[],CV='dashboard',CF={e:'todos',p:''},SID=null,EID=null,MIDI=[],SQ='';
 
 document.getElementById('sb-date').textContent=new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
 document.getElementById('mob-date').textContent=new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
@@ -416,10 +416,15 @@ async function saveG(){
 async function loadData(){
   document.getElementById('ca').innerHTML='<div class="ld"><div class="sp"></div><span>Sincronizando...</span></div>';
   try{
-    const r=await fetch(API+'?action=getAll');
-    const d=await r.json();
+    const [rg, rm] = await Promise.all([
+      fetch(API+'?action=getAll'),
+      fetch(API+'?action=getMiDia')
+    ]);
+    const d=await rg.json();
+    const md=await rm.json();
     GS=Array.isArray(d)?d:[];
     GS.forEach(g=>{try{g._b=JSON.parse(g.bitacora||'[]');}catch{g._b=[];}try{g._s=JSON.parse(g.subtareas||'[]');}catch{g._s=[];}});
+    MIDI=Array.isArray(md)?md:[];
     updCts();renderV();
   }catch(e){document.getElementById('ca').innerHTML='<div class="ld" style="color:var(--ac2)">Error de conexión. Comprobá tu internet.</div>';toast('Error al conectar','er');}
 }
@@ -565,8 +570,19 @@ function addUpd(id){const t=document.getElementById('new-upd').value.trim();if(!
 function addSub(id){const inp=document.getElementById('new-sub');const t=inp.value.trim();if(!t)return;const g=GS.find(x=>x.id===id);g._s.push({texto:t,done:false});inp.value='';openG(id);toast('Subtarea agregada ✓','ok');api('update',{id,subtareas:JSON.stringify(g._s),ultima_actualizacion:new Date().toISOString()});}
 function togSub(id,i){const g=GS.find(x=>x.id===id);g._s[i].done=!g._s[i].done;openG(id);api('update',{id,subtareas:JSON.stringify(g._s),ultima_actualizacion:new Date().toISOString()});}
 function delSub(id,i){const g=GS.find(x=>x.id===id);g._s.splice(i,1);openG(id);toast('Eliminada','ok');api('update',{id,subtareas:JSON.stringify(g._s),ultima_actualizacion:new Date().toISOString()});}
-function toggleMiDia(){if(!SID)return;if(MIDI.includes(SID)){MIDI=MIDI.filter(x=>x!==SID);toast('Quitado de Mi día','ok');}else{MIDI.push(SID);toast('Agregado a Mi día ✓','ok');}localStorage.setItem('midi',JSON.stringify(MIDI));updCts();openG(SID);if(CV==='dashboard')renderDash();}
-function rmMidi(id){MIDI=MIDI.filter(x=>x!==id);localStorage.setItem('midi',JSON.stringify(MIDI));updCts();renderDash();}
+function toggleMiDia(){
+  if(!SID)return;
+  if(MIDI.includes(SID)){
+    MIDI=MIDI.filter(x=>x!==SID);
+    toast('Quitado de Mi día','ok');
+  }else{
+    MIDI.push(SID);
+    toast('Agregado a Mi día ✓','ok');
+  }
+  updCts();openG(SID);if(CV==='dashboard')renderDash();
+  api('setMiDia',{ids:MIDI});
+}
+function rmMidi(id){MIDI=MIDI.filter(x=>x!==id);updCts();renderDash();api('setMiDia',{ids:MIDI});}
 function archGestion(){if(!SID)return;if(!confirm('¿Archivar esta gestión?'))return;const g=GS.find(x=>x.id===SID);if(g)g.archivada='true';closeDetail();updCts();renderV();toast('Archivada ✓','ok');api('archive',{id:SID});}
 function closeDetail(){SID=null;document.getElementById('dp-empty').style.display='flex';document.getElementById('dp-cnt').style.display='none';document.querySelectorAll('.gc').forEach(e=>e.classList.remove('on'));}
 function setF(t,v){CF[t]=v;document.querySelectorAll(`.fc[data-f="${t}"]`).forEach(e=>e.classList.toggle('on',e.dataset.v===v));renderList();}
@@ -591,8 +607,14 @@ function toast(msg,type='ok'){const t=document.getElementById('toast');t.textCon
 let MOB_TAB='hoy';
 async function mobLoad(){
   document.getElementById('mob-body').innerHTML='<div style="text-align:center;padding:40px;color:var(--txt3)"><div class="sp" style="margin:0 auto 12px"></div>Cargando...</div>';
-  try{const r=await fetch(API+'?action=getAll');const d=await r.json();GS=Array.isArray(d)?d:[];GS.forEach(g=>{try{g._b=JSON.parse(g.bitacora||'[]');}catch{g._b=[];}try{g._s=JSON.parse(g.subtareas||'[]');}catch{g._s=[];}});mobRender();toast('Sincronizado ✓','ok');}
-  catch(e){document.getElementById('mob-body').innerHTML='<div class="mob-em">⚠️ Error de conexión.</div>';}
+  try{
+    const [rg,rm]=await Promise.all([fetch(API+'?action=getAll'),fetch(API+'?action=getMiDia')]);
+    const d=await rg.json();const md=await rm.json();
+    GS=Array.isArray(d)?d:[];
+    GS.forEach(g=>{try{g._b=JSON.parse(g.bitacora||'[]');}catch{g._b=[];}try{g._s=JSON.parse(g.subtareas||'[]');}catch{g._s=[];}});
+    MIDI=Array.isArray(md)?md:[];
+    mobRender();toast('Sincronizado ✓','ok');
+  }catch(e){document.getElementById('mob-body').innerHTML='<div class="mob-em">⚠️ Error de conexión.</div>';}
 }
 function mobTab(t){MOB_TAB=t;document.querySelectorAll('.mob-tab').forEach(e=>e.classList.remove('on'));document.getElementById('mt-'+t).classList.add('on');mobRender();}
 function mobRender(){
